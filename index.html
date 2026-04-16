@@ -246,15 +246,22 @@
   .otros-wrap.has-value {
     background: #fef3c7;
   }
+  .otros-prefix {
+    display: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .otros-wrap.has-value .otros-prefix { display: inline; }
   .otros-input {
-    width: 100%;
+    width: 3.5rem;
     background: transparent;
     border: none;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--text);
     outline: none;
     font-variant-numeric: tabular-nums;
@@ -263,8 +270,10 @@
   }
   .otros-input::placeholder {
     color: var(--text-light);
+    font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
   .otros-wrap.has-value .otros-input { color: var(--accent); }
   .otros-input::-webkit-outer-spin-button,
@@ -539,6 +548,7 @@
             ${dayData.ida ? checkIcon() : xIcon()} Ida
           </button>
           <div class="otros-wrap ${otrosMonto > 0 ? 'has-value' : ''}">
+            <span class="otros-prefix">S/</span>
             <input type="number" class="otros-input" data-day="${i}" value="${otrosMonto || ''}" placeholder="OTROS" step="0.50" min="0" />
           </div>
           <button class="trip-btn ${dayData.vuelta ? 'on' : 'off'}" data-day="${i}" data-tipo="vuelta">
