@@ -103,7 +103,7 @@
   .saldo-inicial {
     background: var(--accent-light);
     border-color: var(--accent-border);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
   .saldo-inicial label {
     font-family: 'JetBrains Mono', monospace;
@@ -113,6 +113,26 @@
     color: var(--accent);
     display: block;
     margin-bottom: 0.5rem;
+  }
+  .saldo-contra {
+    background: #ffe4e6;
+    border-color: #fda4af;
+    margin-bottom: 1rem;
+  }
+  .saldo-contra label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--danger);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .saldo-contra input[type="number"] {
+    border-color: #fda4af;
+  }
+  .saldo-contra input[type="number"]:focus {
+    border-color: var(--danger);
   }
   .input-wrap {
     display: flex;
@@ -387,10 +407,18 @@
   </header>
 
   <div class="card saldo-inicial">
-    <label id="saldo-inicial-label">Saldo inicial a favor comenzando la semana</label>
+    <label id="saldo-inicial-label">Saldo a favor comenzando la semana</label>
     <div class="input-wrap">
       <span>S/</span>
-      <input type="number" id="saldo-inicial" placeholder="0.00" step="0.01" />
+      <input type="number" id="saldo-inicial" placeholder="0.00" step="0.01" min="0" />
+    </div>
+  </div>
+
+  <div class="card saldo-contra">
+    <label id="saldo-contra-label">Saldo en contra comenzando la semana</label>
+    <div class="input-wrap">
+      <span>S/</span>
+      <input type="number" id="saldo-contra" placeholder="0.00" step="0.01" min="0" />
     </div>
   </div>
 
@@ -416,7 +444,7 @@
       <span class="row-value" id="costo-semana">S/ 0.00</span>
     </div>
     <div class="row">
-      <span class="row-label">Saldo anterior a favor</span>
+      <span class="row-label">Saldo neto al iniciar la semana</span>
       <span class="row-value" id="saldo-anterior">S/ 0.00</span>
     </div>
     <div class="divider"></div>
@@ -484,7 +512,7 @@
   function saveWeeks() {
     localStorage.setItem(STORAGE_WEEKS, JSON.stringify(weeks));
   }
-  function emptyWeek() { return { days: {}, pagado: 0, saldoInicial: 0 }; }
+  function emptyWeek() { return { days: {}, pagado: 0, saldoInicial: 0, saldoContra: 0 }; }
 
   function calcularCostoSemana(week) {
     let total = 0;
@@ -496,10 +524,11 @@
     return total;
   }
 
-  function getSaldoInicial() {
+  function getSaldoIneto() {
     const weekKey = formatDateKey(currentMonday);
     const week = weeks[weekKey];
-    return week ? (week.saldoInicial || 0) : 0;
+    if (!week) return 0;
+    return (week.saldoInicial || 0) - (week.saldoContra || 0);
   }
 
   function render() {
@@ -507,10 +536,13 @@
     const week = weeks[weekKey] || emptyWeek();
 
     document.getElementById("week-range").textContent = formatWeekRange(currentMonday);
-    document.getElementById("saldo-inicial").value = (week.saldoInicial || "") ;
+    const weekDateStr = currentMonday.toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
+    document.getElementById("saldo-inicial").value = (week.saldoInicial || "");
     document.getElementById("saldo-inicial-label").textContent =
-      "Saldo inicial a favor comenzando la semana del " +
-      currentMonday.toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
+      "Saldo a favor comenzando la semana del " + weekDateStr;
+    document.getElementById("saldo-contra").value = (week.saldoContra || "");
+    document.getElementById("saldo-contra-label").textContent =
+      "Saldo en contra comenzando la semana del " + weekDateStr;
 
     const daysContainer = document.getElementById("days");
     daysContainer.innerHTML = "";
@@ -559,7 +591,7 @@
     });
 
     const costo = calcularCostoSemana(week);
-    const saldoAnt = getSaldoInicial();
+    const saldoAnt = getSaldoIneto();
     const pagado = week.pagado || 0;
     const aPagar = Math.max(0, costo - saldoAnt - pagado);
     const saldoTotal = saldoAnt + (pagado - costo);
@@ -640,7 +672,7 @@
 
     // Actualizar resumen
     const costo = calcularCostoSemana(week);
-    const saldoAnt = getSaldoInicial();
+    const saldoAnt = getSaldoIneto();
     const pagado = week.pagado || 0;
     const aPagar = Math.max(0, costo - saldoAnt - pagado);
     const saldoTotal = saldoAnt + (pagado - costo);
@@ -676,6 +708,14 @@
     const weekKey = formatDateKey(currentMonday);
     if (!weeks[weekKey]) weeks[weekKey] = emptyWeek();
     weeks[weekKey].saldoInicial = Number(e.target.value) || 0;
+    saveWeeks();
+    render();
+  });
+
+  document.getElementById("saldo-contra").addEventListener("input", (e) => {
+    const weekKey = formatDateKey(currentMonday);
+    if (!weeks[weekKey]) weeks[weekKey] = emptyWeek();
+    weeks[weekKey].saldoContra = Number(e.target.value) || 0;
     saveWeeks();
     render();
   });
