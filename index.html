@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Movilidad Escolar · Cuentas Semanales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #fafaf9;
+    --card: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --text-muted: #78716c;
+    --text-light: #a8a29e;
+    --accent: #b45309;
+    --accent-light: #fef3c7;
+    --accent-border: #fde68a;
+    --dark: #1c1917;
+    --dark-card: #292524;
+    --dark-border: #44403c;
+    --dark-text: #e7e5e4;
+    --dark-muted: #a8a29e;
+    --success: #059669;
+    --success-light: #10b981;
+    --danger: #e11d48;
+    --danger-light: #fb7185;
+  }
+  body {
+    font-family: 'Fraunces', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .container {
+    max-width: 42rem;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+  }
+  .brand-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .brand svg { color: var(--accent); }
+  h1 {
+    font-size: clamp(2.25rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-variation-settings: 'opsz' 144;
+    line-height: 1.1;
+  }
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+  .subtitle {
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .saldo-inicial {
+    background: var(--accent-light);
+    border-color: var(--accent-border);
+    margin-bottom: 1rem;
+  }
+  .saldo-inicial label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .input-wrap span {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+  }
+  input[type="number"] {
+    flex: 1;
+    background: white;
+    border: 1px solid var(--accent-border);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="number"]:focus { border-color: var(--accent); }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+
+  .hint {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+
+  .week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .nav-btn:hover { background: #f5f5f4; }
+  .week-info { text-align: center; }
+  .week-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+  .week-range { font-weight: 600; }
+
+  .days { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .day {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .day-info { flex: 1; min-width: 5rem; }
+  .day-name { font-weight: 600; }
+  .day-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+  .trip-buttons { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+  .trip-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .trip-btn.off {
+    background: #f5f5f4;
+    color: var(--text-light);
+  }
+  .trip-btn.off:hover { background: #e7e5e4; }
+  .trip-btn.on {
+    background: var(--success);
+    color: white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .otros-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #f5f5f4;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 0.35rem 0.5rem;
+    transition: all 0.15s;
+  }
+  .otros-wrap:focus-within {
+    border-color: var(--accent);
+    background: white;
+  }
+  .otros-wrap.has-value {
+    background: #fef3c7;
+    border-color: #fbbf24;
+  }
+  .otros-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+  .otros-wrap.has-value .otros-label { color: var(--accent); }
+  .otros-prefix {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-light);
+  }
+  .otros-input {
+    width: 3rem;
+    background: transparent;
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    font-variant-numeric: tabular-nums;
+    padding: 0;
+  }
+  .otros-input::-webkit-outer-spin-button,
+  .otros-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .otros-input { -moz-appearance: textfield; }
+  .day-total {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    width: 4rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .summary {
+    background: var(--dark);
+    color: var(--dark-text);
+    border-radius: 1.5rem;
+    padding: 1.75rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+  .summary h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  .row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+  }
+  .row-label { font-size: 0.875rem; color: #d6d3d1; }
+  .row-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .row-value.positive { color: var(--success-light); }
+  .row-value.negative { color: var(--danger-light); }
+  .row-value.highlight { color: #fbbf24; font-size: 1.5rem; font-weight: 700; }
+  .row-value.accent { font-size: 1.125rem; font-weight: 600; }
+  .divider {
+    border-top: 1px solid var(--dark-border);
+    margin: 1rem 0;
+  }
+  .input-field {
+    margin-bottom: 1rem;
+  }
+  .input-field label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .summary .input-wrap span { color: var(--text-light); }
+  .summary input[type="number"] {
+    background: var(--dark-card);
+    border: 1px solid var(--dark-border);
+    color: var(--dark-text);
+    padding: 0.75rem 1rem;
+    font-size: 1.125rem;
+  }
+  .summary input[type="number"]:focus { border-color: var(--accent); }
+
+  .reset-btn {
+    margin-top: 1.5rem;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: inherit;
+    transition: color 0.15s;
+  }
+  .reset-btn:hover { color: var(--danger); }
+
+  .footer {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.625rem;
+    color: var(--text-light);
+    margin-top: 2rem;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>
+      </svg>
+      <span class="brand-label">Movilidad Escolar</span>
+    </div>
+    <h1>Cuentas <em>semanales</em></h1>
+    <p class="subtitle">S/ 11.00 por ida · S/ 11.00 por vuelta</p>
+  </header>
+
+  <div class="card saldo-inicial">
+    <label>Saldo inicial a favor (antes de usar la app)</label>
+    <div class="input-wrap">
+      <span>S/</span>
+      <input type="number" id="saldo-inicial" placeholder="0.00" step="0.01" />
+    </div>
+    <p class="hint">Úsalo si ya tenías un saldo a favor acumulado antes de empezar a registrar semanas aquí.</p>
+  </div>
+
+  <div class="week-nav">
+    <button class="nav-btn" id="prev-week" aria-label="Semana anterior">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="week-info">
+      <div class="week-label">Semana</div>
+      <div class="week-range" id="week-range"></div>
+    </div>
+    <button class="nav-btn" id="next-week" aria-label="Semana siguiente">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <div class="days" id="days"></div>
+
+  <div class="summary">
+    <h2>Resumen de la semana</h2>
+    <div class="row">
+      <span class="row-label">Costo de la semana</span>
+      <span class="row-value" id="costo-semana">S/ 0.00</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Saldo anterior a favor</span>
+      <span class="row-value" id="saldo-anterior">S/ 0.00</span>
+    </div>
+    <div class="divider"></div>
+    <div class="input-field">
+      <label>¿Cuánto pagaste esta semana?</label>
+      <div class="input-wrap">
+        <span>S/</span>
+        <input type="number" id="pagado" placeholder="0.00" step="0.01" />
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="row">
+      <span class="row-label">Te falta pagar esta semana</span>
+      <span class="row-value highlight" id="a-pagar">S/ 0.00</span>
+    </div>
+    <div class="row">
+      <span class="row-label" id="saldo-label">Saldo acumulado a favor</span>
+      <span class="row-value accent" id="saldo-total">S/ 0.00</span>
+    </div>
+  </div>
+
+  <button class="reset-btn" id="reset-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+    Borrar datos de esta semana
+  </button>
+
+  <p class="footer">Los datos se guardan en tu navegador</p>
+</div>
+
+<script>
+  const TARIFA = 11;
+  const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+  const STORAGE_WEEKS = "movilidad-weeks";
+  const STORAGE_SALDO = "movilidad-saldo-inicial";
+
+  let currentMonday = getMondayOf(new Date(2026, 3, 13));
+  let weeks = loadWeeks();
+  let saldoInicial = loadSaldoInicial();
+
+  function getMondayOf(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+  function formatDateKey(date) {
+    return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+  }
+  function formatDateLabel(date) {
+    return date.toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
+  }
+  function formatWeekRange(monday) {
+    const friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4);
+    const opts = { day: "2-digit", month: "short" };
+    return monday.toLocaleDateString("es-PE", opts) + " — " + friday.toLocaleDateString("es-PE", opts);
+  }
+
+  function loadWeeks() {
+    try {
+      const raw = localStorage.getItem(STORAGE_WEEKS);
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  }
+  function saveWeeks() {
+    localStorage.setItem(STORAGE_WEEKS, JSON.stringify(weeks));
+  }
+  function loadSaldoInicial() {
+    const raw = localStorage.getItem(STORAGE_SALDO);
+    return raw ? Number(raw) || 0 : 0;
+  }
+  function saveSaldoInicial() {
+    localStorage.setItem(STORAGE_SALDO, String(saldoInicial));
+  }
+
+  function emptyWeek() { return { days: {}, pagado: 0 }; }
+
+  function calcularCostoSemana(week) {
+    let total = 0;
+    Object.values(week.days || {}).forEach(d => {
+      if (d.ida) total += TARIFA;
+      if (d.vuelta) total += TARIFA;
+      total += Number(d.otros) || 0;
+    });
+    return total;
+  }
+
+  function calcularSaldoAnterior() {
+    let saldo = saldoInicial;
+    const currentKey = formatDateKey(currentMonday);
+    Object.entries(weeks).forEach(([k, w]) => {
+      if (k < currentKey) {
+        const costo = calcularCostoSemana(w);
+        saldo += (w.pagado || 0) - costo;
+      }
+    });
+    return saldo;
+  }
+
+  function render() {
+    const weekKey = formatDateKey(currentMonday);
+    const week = weeks[weekKey] || emptyWeek();
+
+    document.getElementById("week-range").textContent = formatWeekRange(currentMonday);
+    document.getElementById("saldo-inicial").value = saldoInicial || "";
+
+    const daysContainer = document.getElementById("days");
+    daysContainer.innerHTML = "";
+    DIAS.forEach((nombre, i) => {
+      const dayDate = new Date(currentMonday);
+      dayDate.setDate(currentMonday.getDate() + i);
+      const dayKey = formatDateKey(dayDate);
+      const dayData = week.days[dayKey] || { ida: false, vuelta: false, otros: 0 };
+      const otrosMonto = Number(dayData.otros) || 0;
+      const dayTotal = (dayData.ida ? TARIFA : 0) + (dayData.vuelta ? TARIFA : 0) + otrosMonto;
+
+      const dayEl = document.createElement("div");
+      dayEl.className = "day";
+      dayEl.innerHTML = `
+        <div class="day-info">
+          <div class="day-name">${nombre}</div>
+          <div class="day-date">${formatDateLabel(dayDate)}</div>
+        </div>
+        <div class="trip-buttons">
+          <button class="trip-btn ${dayData.ida ? 'on' : 'off'}" data-day="${i}" data-tipo="ida">
+            ${dayData.ida ? checkIcon() : xIcon()} Ida
+          </button>
+          <div class="otros-wrap ${otrosMonto > 0 ? 'has-value' : ''}">
+            <span class="otros-label">Otros</span>
+            <span class="otros-prefix">S/</span>
+            <input type="number" class="otros-input" data-day="${i}" value="${otrosMonto || ''}" placeholder="0" step="0.50" min="0" />
+          </div>
+          <button class="trip-btn ${dayData.vuelta ? 'on' : 'off'}" data-day="${i}" data-tipo="vuelta">
+            ${dayData.vuelta ? checkIcon() : xIcon()} Vuelta
+          </button>
+        </div>
+        <div class="day-total">S/ ${dayTotal.toFixed(dayTotal % 1 === 0 ? 0 : 2)}</div>
+      `;
+      daysContainer.appendChild(dayEl);
+    });
+
+    daysContainer.querySelectorAll(".trip-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        toggleTrip(Number(btn.dataset.day), btn.dataset.tipo);
+      });
+    });
+
+    daysContainer.querySelectorAll(".otros-input").forEach(input => {
+      input.addEventListener("input", (e) => {
+        setOtros(Number(input.dataset.day), e.target.value);
+      });
+    });
+
+    const costo = calcularCostoSemana(week);
+    const saldoAnt = calcularSaldoAnterior();
+    const pagado = week.pagado || 0;
+    const aPagar = Math.max(0, costo - saldoAnt - pagado);
+    const saldoTotal = saldoAnt + (pagado - costo);
+
+    document.getElementById("costo-semana").textContent = "S/ " + costo.toFixed(2);
+    const saldoAntEl = document.getElementById("saldo-anterior");
+    saldoAntEl.textContent = (saldoAnt >= 0 ? "+" : "") + "S/ " + saldoAnt.toFixed(2);
+    saldoAntEl.className = "row-value " + (saldoAnt > 0 ? "positive" : saldoAnt < 0 ? "negative" : "");
+
+    document.getElementById("pagado").value = pagado || "";
+    document.getElementById("a-pagar").textContent = "S/ " + aPagar.toFixed(2);
+
+    document.getElementById("saldo-label").textContent = "Saldo acumulado " + (saldoTotal >= 0 ? "a favor" : "en contra");
+    const saldoTotalEl = document.getElementById("saldo-total");
+    saldoTotalEl.textContent = (saldoTotal >= 0 ? "+" : "") + "S/ " + saldoTotal.toFixed(2);
+    saldoTotalEl.className = "row-value accent " + (saldoTotal >= 0 ? "positive" : "negative");
+  }
+
+  function checkIcon() {
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  }
+  function xIcon() {
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  }
+
+  function toggleTrip(dayIndex, tipo) {
+    const weekKey = formatDateKey(currentMonday);
+    const dayDate = new Date(currentMonday);
+    dayDate.setDate(currentMonday.getDate() + dayIndex);
+    const dayKey = formatDateKey(dayDate);
+
+    if (!weeks[weekKey]) weeks[weekKey] = emptyWeek();
+    if (!weeks[weekKey].days[dayKey]) weeks[weekKey].days[dayKey] = { ida: false, vuelta: false, otros: 0 };
+    weeks[weekKey].days[dayKey][tipo] = !weeks[weekKey].days[dayKey][tipo];
+    saveWeeks();
+    render();
+  }
+
+  function setOtros(dayIndex, monto) {
+    const weekKey = formatDateKey(currentMonday);
+    const dayDate = new Date(currentMonday);
+    dayDate.setDate(currentMonday.getDate() + dayIndex);
+    const dayKey = formatDateKey(dayDate);
+
+    if (!weeks[weekKey]) weeks[weekKey] = emptyWeek();
+    if (!weeks[weekKey].days[dayKey]) weeks[weekKey].days[dayKey] = { ida: false, vuelta: false, otros: 0 };
+    weeks[weekKey].days[dayKey].otros = Number(monto) || 0;
+    saveWeeks();
+    // Actualizamos solo el total del día y el resumen sin re-renderizar todo
+    // para que el foco no se pierda del input
+    updateTotals();
+  }
+
+  function updateTotals() {
+    const weekKey = formatDateKey(currentMonday);
+    const week = weeks[weekKey] || emptyWeek();
+
+    // Actualizar total de cada día
+    DIAS.forEach((_, i) => {
+      const dayDate = new Date(currentMonday);
+      dayDate.setDate(currentMonday.getDate() + i);
+      const dayKey = formatDateKey(dayDate);
+      const dayData = week.days[dayKey] || { ida: false, vuelta: false, otros: 0 };
+      const otrosMonto = Number(dayData.otros) || 0;
+      const dayTotal = (dayData.ida ? TARIFA : 0) + (dayData.vuelta ? TARIFA : 0) + otrosMonto;
+
+      const dayEl = document.querySelectorAll(".day")[i];
+      if (dayEl) {
+        const totalEl = dayEl.querySelector(".day-total");
+        if (totalEl) totalEl.textContent = "S/ " + dayTotal.toFixed(dayTotal % 1 === 0 ? 0 : 2);
+        const otrosWrap = dayEl.querySelector(".otros-wrap");
+        if (otrosWrap) {
+          if (otrosMonto > 0) otrosWrap.classList.add("has-value");
+          else otrosWrap.classList.remove("has-value");
+        }
+      }
+    });
+
+    // Actualizar resumen
+    const costo = calcularCostoSemana(week);
+    const saldoAnt = calcularSaldoAnterior();
+    const pagado = week.pagado || 0;
+    const aPagar = Math.max(0, costo - saldoAnt - pagado);
+    const saldoTotal = saldoAnt + (pagado - costo);
+
+    document.getElementById("costo-semana").textContent = "S/ " + costo.toFixed(2);
+    document.getElementById("a-pagar").textContent = "S/ " + aPagar.toFixed(2);
+    document.getElementById("saldo-label").textContent = "Saldo acumulado " + (saldoTotal >= 0 ? "a favor" : "en contra");
+    const saldoTotalEl = document.getElementById("saldo-total");
+    saldoTotalEl.textContent = (saldoTotal >= 0 ? "+" : "") + "S/ " + saldoTotal.toFixed(2);
+    saldoTotalEl.className = "row-value accent " + (saldoTotal >= 0 ? "positive" : "negative");
+  }
+
+  document.getElementById("prev-week").addEventListener("click", () => {
+    currentMonday = new Date(currentMonday);
+    currentMonday.setDate(currentMonday.getDate() - 7);
+    render();
+  });
+  document.getElementById("next-week").addEventListener("click", () => {
+    currentMonday = new Date(currentMonday);
+    currentMonday.setDate(currentMonday.getDate() + 7);
+    render();
+  });
+
+  document.getElementById("pagado").addEventListener("input", (e) => {
+    const weekKey = formatDateKey(currentMonday);
+    if (!weeks[weekKey]) weeks[weekKey] = emptyWeek();
+    weeks[weekKey].pagado = Number(e.target.value) || 0;
+    saveWeeks();
+    render();
+  });
+
+  document.getElementById("saldo-inicial").addEventListener("input", (e) => {
+    saldoInicial = Number(e.target.value) || 0;
+    saveSaldoInicial();
+    render();
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", () => {
+    if (!confirm("¿Borrar todos los datos de esta semana?")) return;
+    const weekKey = formatDateKey(currentMonday);
+    delete weeks[weekKey];
+    saveWeeks();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
