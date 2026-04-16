@@ -450,11 +450,9 @@
   const TARIFA = 11;
   const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
   const STORAGE_WEEKS = "movilidad-weeks";
-  const STORAGE_SALDO = "movilidad-saldo-inicial";
 
   let currentMonday = getMondayOf(new Date(2026, 3, 13));
   let weeks = loadWeeks();
-  let saldoInicial = loadSaldoInicial();
 
   function getMondayOf(date) {
     const d = new Date(date);
@@ -486,15 +484,7 @@
   function saveWeeks() {
     localStorage.setItem(STORAGE_WEEKS, JSON.stringify(weeks));
   }
-  function loadSaldoInicial() {
-    const raw = localStorage.getItem(STORAGE_SALDO);
-    return raw ? Number(raw) || 0 : 0;
-  }
-  function saveSaldoInicial() {
-    localStorage.setItem(STORAGE_SALDO, String(saldoInicial));
-  }
-
-  function emptyWeek() { return { days: {}, pagado: 0 }; }
+  function emptyWeek() { return { days: {}, pagado: 0, saldoInicial: 0 }; }
 
   function calcularCostoSemana(week) {
     let total = 0;
@@ -506,16 +496,10 @@
     return total;
   }
 
-  function calcularSaldoAnterior() {
-    let saldo = saldoInicial;
-    const currentKey = formatDateKey(currentMonday);
-    Object.entries(weeks).forEach(([k, w]) => {
-      if (k < currentKey) {
-        const costo = calcularCostoSemana(w);
-        saldo += (w.pagado || 0) - costo;
-      }
-    });
-    return saldo;
+  function getSaldoInicial() {
+    const weekKey = formatDateKey(currentMonday);
+    const week = weeks[weekKey];
+    return week ? (week.saldoInicial || 0) : 0;
   }
 
   function render() {
@@ -523,7 +507,7 @@
     const week = weeks[weekKey] || emptyWeek();
 
     document.getElementById("week-range").textContent = formatWeekRange(currentMonday);
-    document.getElementById("saldo-inicial").value = saldoInicial || "";
+    document.getElementById("saldo-inicial").value = (week.saldoInicial || "") ;
     document.getElementById("saldo-inicial-label").textContent =
       "Saldo inicial a favor comenzando la semana del " +
       currentMonday.toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
@@ -575,7 +559,7 @@
     });
 
     const costo = calcularCostoSemana(week);
-    const saldoAnt = calcularSaldoAnterior();
+    const saldoAnt = getSaldoInicial();
     const pagado = week.pagado || 0;
     const aPagar = Math.max(0, costo - saldoAnt - pagado);
     const saldoTotal = saldoAnt + (pagado - costo);
@@ -656,7 +640,7 @@
 
     // Actualizar resumen
     const costo = calcularCostoSemana(week);
-    const saldoAnt = calcularSaldoAnterior();
+    const saldoAnt = getSaldoInicial();
     const pagado = week.pagado || 0;
     const aPagar = Math.max(0, costo - saldoAnt - pagado);
     const saldoTotal = saldoAnt + (pagado - costo);
@@ -689,8 +673,10 @@
   });
 
   document.getElementById("saldo-inicial").addEventListener("input", (e) => {
-    saldoInicial = Number(e.target.value) || 0;
-    saveSaldoInicial();
+    const weekKey = formatDateKey(currentMonday);
+    if (!weeks[weekKey]) weeks[weekKey] = emptyWeek();
+    weeks[weekKey].saldoInicial = Number(e.target.value) || 0;
+    saveWeeks();
     render();
   });
 
