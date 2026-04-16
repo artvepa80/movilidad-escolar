@@ -230,47 +230,43 @@
   .otros-wrap {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    justify-content: center;
     background: #f5f5f4;
-    border: 1px solid var(--border);
+    border: none;
     border-radius: 0.75rem;
-    padding: 0.35rem 0.5rem;
+    padding: 0.5rem 0.75rem;
     transition: all 0.15s;
+    position: relative;
+    min-width: 5.5rem;
   }
   .otros-wrap:focus-within {
-    border-color: var(--accent);
     background: white;
+    box-shadow: 0 0 0 1px var(--accent);
   }
   .otros-wrap.has-value {
     background: #fef3c7;
-    border-color: #fbbf24;
-  }
-  .otros-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-  }
-  .otros-wrap.has-value .otros-label { color: var(--accent); }
-  .otros-prefix {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--text-light);
   }
   .otros-input {
-    width: 3rem;
+    width: 100%;
     background: transparent;
     border: none;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--text);
     outline: none;
     font-variant-numeric: tabular-nums;
     padding: 0;
+    text-align: center;
   }
+  .otros-input::placeholder {
+    color: var(--text-light);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .otros-wrap.has-value .otros-input { color: var(--accent); }
   .otros-input::-webkit-outer-spin-button,
   .otros-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .otros-input { -moz-appearance: textfield; }
@@ -543,9 +539,7 @@
             ${dayData.ida ? checkIcon() : xIcon()} Ida
           </button>
           <div class="otros-wrap ${otrosMonto > 0 ? 'has-value' : ''}">
-            <span class="otros-label">Otros</span>
-            <span class="otros-prefix">S/</span>
-            <input type="number" class="otros-input" data-day="${i}" value="${otrosMonto || ''}" placeholder="0" step="0.50" min="0" />
+            <input type="number" class="otros-input" data-day="${i}" value="${otrosMonto || ''}" placeholder="OTROS" step="0.50" min="0" />
           </div>
           <button class="trip-btn ${dayData.vuelta ? 'on' : 'off'}" data-day="${i}" data-tipo="vuelta">
             ${dayData.vuelta ? checkIcon() : xIcon()} Vuelta
