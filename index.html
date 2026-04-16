@@ -604,7 +604,7 @@
     document.getElementById("pagado").value = pagado || "";
     document.getElementById("a-pagar").textContent = "S/ " + aPagar.toFixed(2);
 
-    document.getElementById("saldo-label").textContent = "Saldo acumulado " + (saldoTotal >= 0 ? "a favor" : "en contra");
+    document.getElementById("saldo-label").textContent = "Saldo al cerrar la semana " + (saldoTotal >= 0 ? "(a favor)" : "(en contra)");
     const saldoTotalEl = document.getElementById("saldo-total");
     saldoTotalEl.textContent = (saldoTotal >= 0 ? "+" : "") + "S/ " + saldoTotal.toFixed(2);
     saldoTotalEl.className = "row-value accent " + (saldoTotal >= 0 ? "positive" : "negative");
@@ -679,7 +679,7 @@
 
     document.getElementById("costo-semana").textContent = "S/ " + costo.toFixed(2);
     document.getElementById("a-pagar").textContent = "S/ " + aPagar.toFixed(2);
-    document.getElementById("saldo-label").textContent = "Saldo acumulado " + (saldoTotal >= 0 ? "a favor" : "en contra");
+    document.getElementById("saldo-label").textContent = "Saldo al cerrar la semana " + (saldoTotal >= 0 ? "(a favor)" : "(en contra)");
     const saldoTotalEl = document.getElementById("saldo-total");
     saldoTotalEl.textContent = (saldoTotal >= 0 ? "+" : "") + "S/ " + saldoTotal.toFixed(2);
     saldoTotalEl.className = "row-value accent " + (saldoTotal >= 0 ? "positive" : "negative");
