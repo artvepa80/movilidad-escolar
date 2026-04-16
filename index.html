@@ -387,12 +387,11 @@
   </header>
 
   <div class="card saldo-inicial">
-    <label>Saldo inicial a favor (antes de usar la app)</label>
+    <label id="saldo-inicial-label">Saldo inicial a favor comenzando la semana</label>
     <div class="input-wrap">
       <span>S/</span>
       <input type="number" id="saldo-inicial" placeholder="0.00" step="0.01" />
     </div>
-    <p class="hint">Úsalo si ya tenías un saldo a favor acumulado antes de empezar a registrar semanas aquí.</p>
   </div>
 
   <div class="week-nav">
@@ -525,6 +524,9 @@
 
     document.getElementById("week-range").textContent = formatWeekRange(currentMonday);
     document.getElementById("saldo-inicial").value = saldoInicial || "";
+    document.getElementById("saldo-inicial-label").textContent =
+      "Saldo inicial a favor comenzando la semana del " +
+      currentMonday.toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
 
     const daysContainer = document.getElementById("days");
     daysContainer.innerHTML = "";
