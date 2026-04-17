@@ -23,7 +23,6 @@
     --dark-card: #292524;
     --dark-border: #44403c;
     --dark-text: #e7e5e4;
-    --dark-muted: #a8a29e;
     --success: #059669;
     --success-light: #10b981;
     --danger: #e11d48;
@@ -407,7 +406,7 @@
   </header>
 
   <div class="card saldo-inicial">
-    <label id="saldo-inicial-label">Saldo a favor comenzando la semana</label>
+    <label id="saldo-inicial-label" for="saldo-inicial">Saldo a favor comenzando la semana</label>
     <div class="input-wrap">
       <span>S/</span>
       <input type="number" id="saldo-inicial" placeholder="0.00" step="0.01" min="0" />
@@ -415,7 +414,7 @@
   </div>
 
   <div class="card saldo-contra">
-    <label id="saldo-contra-label">Saldo en contra comenzando la semana</label>
+    <label id="saldo-contra-label" for="saldo-contra">Saldo en contra comenzando la semana</label>
     <div class="input-wrap">
       <span>S/</span>
       <input type="number" id="saldo-contra" placeholder="0.00" step="0.01" min="0" />
@@ -524,7 +523,7 @@
     return total;
   }
 
-  function getSaldoIneto() {
+  function getSaldoNeto() {
     const weekKey = formatDateKey(currentMonday);
     const week = weeks[weekKey];
     if (!week) return 0;
@@ -591,7 +590,7 @@
     });
 
     const costo = calcularCostoSemana(week);
-    const saldoAnt = getSaldoIneto();
+    const saldoAnt = getSaldoNeto();
     const pagado = week.pagado || 0;
     const aPagar = Math.max(0, costo - saldoAnt - pagado);
     const saldoTotal = saldoAnt + (pagado - costo);
@@ -672,7 +671,7 @@
 
     // Actualizar resumen
     const costo = calcularCostoSemana(week);
-    const saldoAnt = getSaldoIneto();
+    const saldoAnt = getSaldoNeto();
     const pagado = week.pagado || 0;
     const aPagar = Math.max(0, costo - saldoAnt - pagado);
     const saldoTotal = saldoAnt + (pagado - costo);
@@ -707,7 +706,7 @@
   document.getElementById("saldo-inicial").addEventListener("input", (e) => {
     const weekKey = formatDateKey(currentMonday);
     if (!weeks[weekKey]) weeks[weekKey] = emptyWeek();
-    weeks[weekKey].saldoInicial = Number(e.target.value) || 0;
+    weeks[weekKey].saldoInicial = Math.max(0, Number(e.target.value) || 0);
     saveWeeks();
     render();
   });
@@ -715,7 +714,7 @@
   document.getElementById("saldo-contra").addEventListener("input", (e) => {
     const weekKey = formatDateKey(currentMonday);
     if (!weeks[weekKey]) weeks[weekKey] = emptyWeek();
-    weeks[weekKey].saldoContra = Number(e.target.value) || 0;
+    weeks[weekKey].saldoContra = Math.max(0, Number(e.target.value) || 0);
     saveWeeks();
     render();
   });
